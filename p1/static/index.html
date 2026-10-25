@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f8">
+  <title>Library Admin | Circulation</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview">
+        <span class="brand-mark" aria-hidden="true">L</span>
+        <span>Leaf &amp; Ledger<small>LIBRARY ADMIN</small></span>
+      </a>
+      <p class="nav-label">WORKSPACE</p>
+      <nav class="side-nav" aria-label="Admin navigation">
+        <a class="nav-link active" href="#overview"><span aria-hidden="true">▦</span> Overview</a>
+        <a class="nav-link" href="#checkout"><span aria-hidden="true">↗</span> Issue a book</a>
+        <a class="nav-link" href="#inventory"><span aria-hidden="true">▤</span> Inventory</a>
+        <a class="nav-link" href="#loans"><span aria-hidden="true">↻</span> Loans &amp; returns</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="online-dot"></span>
+        <div><strong>Library desk</strong><small>Circulation workspace</small></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> <strong>Overview</strong></div>
+        <div class="topbar-actions">
+          <span id="today-label" class="today-label"></span>
+          <button class="button button-primary" id="top-checkout" type="button"><span aria-hidden="true">+</span> New checkout</button>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        <section id="overview" class="page-heading">
+          <div>
+            <p class="eyebrow">LIBRARY OPERATIONS</p>
+            <h1>Good day, Admin <span class="wave" aria-hidden="true">✳</span></h1>
+            <p>Here’s what’s happening across your library today.</p>
+          </div>
+          <span class="live-badge"><span class="online-dot"></span> Live inventory</span>
+        </section>
+
+        <section class="metric-grid" aria-label="Library analytics">
+          <article class="metric-card">
+            <div class="metric-top"><span>Total copies</span><span class="metric-icon icon-blue">▤</span></div>
+            <strong id="metric-total-copies">0</strong>
+            <small>Physical copies in your catalog</small>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span>Available now</span><span class="metric-icon icon-green">✓</span></div>
+            <strong id="metric-available">0</strong>
+            <small><span id="metric-availability-rate">0%</span> of inventory on shelf</small>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span>On loan</span><span class="metric-icon icon-violet">↗</span></div>
+            <strong id="metric-on-loan">0</strong>
+            <small>Copies currently with readers</small>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span>Overdue</span><span class="metric-icon icon-amber">!</span></div>
+            <strong id="metric-overdue">0</strong>
+            <small>Active loans past their due date</small>
+          </article>
+          <article class="metric-card revenue-card">
+            <div class="metric-top"><span>Fine revenue · this month</span><span class="metric-icon icon-green">₹</span></div>
+            <strong id="metric-revenue">₹0</strong>
+            <small>Received fines only · all-time <b id="metric-revenue-total">₹0</b></small>
+          </article>
+        </section>
+
+        <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+
+        <section class="work-grid">
+          <section id="checkout" class="panel checkout-panel" aria-labelledby="checkout-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">CIRCULATION DESK</p>
+                <h2 id="checkout-title">Issue a book</h2>
+                <p class="panel-subtitle">Check stock, register the reader, and set a due date.</p>
+              </div>
+              <span class="panel-icon">↗</span>
+            </div>
+            <form id="checkout-form" class="checkout-form">
+              <label for="checkout-book">Book title</label>
+              <select id="checkout-book" name="book_id" required>
+                <option value="">Choose a book from inventory</option>
+              </select>
+              <div id="stock-check" class="stock-check" aria-live="polite">Choose a title to check availability.</div>
+
+              <div class="form-row">
+                <div>
+                  <label for="borrower-name">Customer name</label>
+                  <input id="borrower-name" name="borrower_name" maxlength="120" autocomplete="name" placeholder="Full name" required>
+                </div>
+                <div>
+                  <label for="borrower-phone">Phone number</label>
+                  <input id="borrower-phone" name="borrower_phone" type="tel" maxlength="30" autocomplete="tel" placeholder="+91 98765 43210" required>
+                </div>
+              </div>
+              <label for="borrower-id">Library member / customer ID</label>
+              <input id="borrower-id" name="borrower_id" maxlength="60" placeholder="e.g. LIB-00124" required>
+
+              <div class="form-row date-row">
+                <div>
+                  <label for="borrowed-on">Date issued</label>
+                  <input id="borrowed-on" name="borrowed_on" type="date" readonly>
+                </div>
+                <div>
+                  <label for="loan-days">Loan period</label>
+                  <select id="loan-days" name="loan_days">
+                    <option value="7">7 days</option>
+                    <option value="14" selected>14 days</option>
+                    <option value="21">21 days</option>
+                    <option value="30">30 days</option>
+                    <option value="45">45 days</option>
+                    <option value="60">60 days</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="due-on">Due date</label>
+                  <input id="due-on" type="date" readonly>
+                </div>
+              </div>
+              <p class="fee-hint">Overdue fee: ₹2 per day after the due date.</p>
+              <p id="checkout-error" class="form-error" role="alert" hidden></p>
+              <button class="button button-primary issue-button" type="submit">Confirm checkout <span aria-hidden="true">→</span></button>
+            </form>
+          </section>
+
+          <section class="panel revenue-panel" aria-labelledby="revenue-title">
+            <div class="panel-heading compact-heading">
+              <div>
+                <p class="eyebrow">COLLECTED LATE FEES</p>
+                <h2 id="revenue-title">Revenue snapshot</h2>
+              </div>
+              <span class="period-label">Last 7 days</span>
+            </div>
+            <div class="revenue-total">
+              <strong id="revenue-week-total">₹0</strong>
+              <span>payments received</span>
+            </div>
+            <div id="revenue-chart" class="revenue-chart" role="img" aria-label="Late fee revenue received each of the last seven days"></div>
+            <p class="chart-caption">Revenue reflects fine payments recorded as received. Unpaid fines are not counted.</p>
+            <div class="analytics-divider"></div>
+            <div class="quick-facts">
+              <div><span>Catalog titles</span><strong id="metric-titles">0</strong></div>
+              <div><span>Fines outstanding</span><strong id="metric-outstanding">₹0</strong></div>
+              <div><span>Reference copies</span><strong id="metric-reference">0</strong></div>
+            </div>
+          </section>
+        </section>
+
+        <section id="inventory" class="panel table-panel" aria-labelledby="inventory-title">
+          <div class="table-heading">
+            <div>
+              <p class="eyebrow">BOOKS &amp; COPIES</p>
+              <h2 id="inventory-title">Inventory</h2>
+              <p class="panel-subtitle">See how many copies are on the shelf and with readers.</p>
+            </div>
+            <button class="button button-secondary" id="open-add" type="button"><span aria-hidden="true">+</span> Add title</button>
+          </div>
+          <div class="table-toolbar">
+            <label class="search-field">
+              <span aria-hidden="true">⌕</span>
+              <span class="visually-hidden">Search inventory</span>
+              <input id="inventory-search" type="search" placeholder="Search title or author...">
+            </label>
+            <label class="visually-hidden" for="inventory-filter">Filter inventory</label>
+            <select id="inventory-filter">
+              <option value="all">All stock</option>
+              <option value="available">Available</option>
+              <option value="borrowed">Partly on loan</option>
+              <option value="out">Out of stock</option>
+            </select>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>BOOK</th><th>TYPE</th><th>TOTAL COPIES</th><th>AVAILABLE</th><th>ON LOAN</th><th>STOCK STATUS</th><th></th></tr></thead>
+              <tbody id="inventory-rows"></tbody>
+            </table>
+          </div>
+          <p id="inventory-empty" class="table-empty" hidden>No titles match this search.</p>
+        </section>
+
+        <section id="loans" class="panel table-panel loans-panel" aria-labelledby="loans-title">
+          <div class="table-heading">
+            <div>
+              <p class="eyebrow">CIRCULATION REGISTER</p>
+              <h2 id="loans-title">Loans &amp; returns</h2>
+              <p class="panel-subtitle">Customer details, checkout dates, due dates, and return actions.</p>
+            </div>
+            <label class="visually-hidden" for="loan-filter">Filter loans</label>
+            <select id="loan-filter" class="loan-filter">
+              <option value="all">All records</option>
+              <option value="active">Currently borrowed</option>
+              <option value="overdue">Overdue</option>
+              <option value="returned">Returned</option>
+            </select>
+          </div>
+          <div class="table-toolbar loan-toolbar">
+            <label class="search-field">
+              <span aria-hidden="true">⌕</span>
+              <span class="visually-hidden">Search loan records</span>
+              <input id="loan-search" type="search" placeholder="Search customer, phone, ID, or book...">
+            </label>
+          </div>
+          <div class="table-scroll">
+            <table class="loans-table">
+              <thead><tr><th>BOOK / LOAN</th><th>CUSTOMER</th><th>ISSUED</th><th>DUE DATE</th><th>DAYS OUT</th><th>STATUS / FINE</th><th>ACTION</th></tr></thead>
+              <tbody id="loan-rows"></tbody>
+            </table>
+          </div>
+          <p id="loans-empty" class="table-empty" hidden>No loan records match these filters.</p>
+        </section>
+        <footer class="page-footer">Leaf &amp; Ledger <span>·</span> Library circulation management</footer>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="add-dialog" class="dialog">
+    <form id="add-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">INVENTORY</p><h2>Add book title</h2></div>
+        <button class="close-button" type="button" data-close-dialog="add-dialog" aria-label="Close">×</button>
+      </div>
+      <label for="title">Title</label><input id="title" name="title" maxlength="200" required>
+      <label for="author">Author</label><input id="author" name="author" maxlength="200" required>
+      <label for="book-type">Book type</label>
+      <select id="book-type" name="book_type">
+        <option value="Fiction">Fiction</option><option value="Non-Fiction">Non-Fiction</option><option value="Reference">Reference</option>
+      </select>
+      <label id="detail-label" for="detail">Fiction type</label><input id="detail" name="detail" maxlength="100" placeholder="e.g. Novel, Fantasy">
+      <label for="total-copies">Copies received</label><input id="total-copies" name="total_copies" type="number" min="1" max="5000" value="1" required>
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+      <button class="button button-primary submit-button" type="submit">Add to inventory</button>
+    </form>
+  </dialog>
+
+  <dialog id="restock-dialog" class="dialog">
+    <form id="restock-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">INVENTORY UPDATE</p><h2 id="restock-title">Add copies</h2></div>
+        <button class="close-button" type="button" data-close-dialog="restock-dialog" aria-label="Close">×</button>
+      </div>
+      <p class="dialog-copy">Copies are added to the available shelf stock immediately.</p>
+      <label for="restock-copies">New copies received</label><input id="restock-copies" name="copies" type="number" min="1" max="5000" value="1" required>
+      <p id="restock-error" class="form-error" role="alert" hidden></p>
+      <button class="button button-primary submit-button" type="submit">Update inventory</button>
+    </form>
+  </dialog>
+
+  <dialog id="payment-dialog" class="dialog">
+    <form id="payment-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">FINE PAYMENT</p><h2>Record payment</h2></div>
+        <button class="close-button" type="button" data-close-dialog="payment-dialog" aria-label="Close">×</button>
+      </div>
+      <p id="payment-description" class="dialog-copy"></p>
+      <p class="payment-note">Record only after receiving the fine. Payments are collected outside this app.</p>
+      <label for="payment-method">Payment received by</label>
+      <select id="payment-method" name="payment_method">
+        <option value="Cash">Cash</option><option value="UPI">UPI (paid externally)</option><option value="Card">Card (paid externally)</option>
+      </select>
+      <p id="payment-error" class="form-error" role="alert" hidden></p>
+      <button class="button button-primary submit-button" type="submit">Confirm received</button>
+    </form>
+  </dialog>
+</body>
+</html>

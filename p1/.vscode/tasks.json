@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Library Catalog",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"main.py"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Library Catalog Web App",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"web_app.py"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

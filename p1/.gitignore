@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+library.db
+library.db-journal
+library.db-shm
+library.db-wal
